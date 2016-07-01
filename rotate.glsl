@@ -13,3 +13,10 @@ mat4 makeRotationMatrix(float theta, vec3 axis)
 {
     return makeRotationMatrix(vec4(axis, theta));
 }
+
+mat4 makeRotationMatrix(vec3 from, vec3 to)
+{
+	vec3 axis = cross(from, to);
+	float theta = dot(from, to);
+	return makeRotationMatrix(vec4(axis, theta));
+}
