@@ -17,6 +17,6 @@ mat4 makeRotationMatrix(float theta, vec3 axis)
 mat4 makeRotationMatrix(vec3 from, vec3 to)
 {
 	vec3 axis = cross(from, to);
-	float theta = dot(from, to);
+	float theta = acos(dot(from, to));
 	return makeRotationMatrix(vec4(axis, theta));
 }
