@@ -7,13 +7,15 @@ float gaussian(float x, float y, float sigma)
 
 vec3 filterGaussianBlur(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	float sum = 0.0;
 	vec3 sampler = vec3(0);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
 			float scale = gaussian(x, y, 5.0);
-			sampler += scale * texture(tex0, vTexCoord + vec2(x, y)).rgb;
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler += scale * texture(tex0, tex_coord).rgb;
 			sum += scale;
 		}
 	}
@@ -23,27 +25,31 @@ vec3 filterGaussianBlur(int sub)
 
 vec3 filterGaussianUnsharp(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	float sum = 0.0;
 	vec3 sampler = vec3(0);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
 			float scale = gaussian(x, y, 5.0);
-			sampler -= scale * texture(tex0, vTexCoord + vec2(x, y)).rgb;
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler -= scale * texture(tex0, tex_coord).rgb;
 			sum += scale;
 		}
 	}
-	sampler += (sum + 1.0) * texture(tex0, vTexCoord).rgb;
+	sampler += (sum + 1.0) * texture(tex0, In.texCoord).rgb;
 	return sampler;
 }
 
 vec3 filterBoxBlur(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	vec3 sampler = vec3(0);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
-			sampler += texture(tex0, vTexCoord + vec2(x, y)).rgb;
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler += texture(tex0, tex_coord).rgb;
 		}
 	}
 	sampler /= pow(size*2-1, 2);
@@ -52,30 +58,34 @@ vec3 filterBoxBlur(int sub)
 
 vec3 filterSepia()
 {
-	float grey = dot(texture(tex0, vTexCoord).rgb, vec3(0.299, 0.587, 0.114));
+	float grey = dot(texture(tex0, In.texCoord).rgb, vec3(0.299, 0.587, 0.114));
 	return grey * vec3(1.2, 1.0, 0.8);
 }
 
 vec3 filterEdge(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	vec3 sampler = vec3(0);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
-			sampler -= texture(tex0, vTexCoord + vec2(x, y)).rgb;
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler -= texture(tex0, tex_coord).rgb;
 		}
 	}
-	sampler += texture(tex0, vTexCoord).rgb * (pow(size*2-1, 2)+1);
+	sampler += texture(tex0, In.texCoord).rgb * (pow(size*2-1, 2)+1);
 	return sampler;
 }
 
 vec3 filterDilate(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	vec3 sampler = vec3(0);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
-			sampler = max(texture(tex0, vTexCoord + vec2(x, y)).rgb, sampler);
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler = max(texture(tex0, tex_coord).rgb, sampler);
 		}
 	}
 	return sampler;
@@ -83,11 +93,13 @@ vec3 filterDilate(int sub)
 
 vec3 filterErode(int sub)
 {
+	vec2 texel = vec2(textureSize(tex0, 0));
 	int size = int(max(sub, 1));
 	vec3 sampler = vec3(1);
 	for (int x=-size; x<=size; x++) {
 		for (int y=-size; y<=size; y++) {
-			sampler = max(texture(tex0, vTexCoord + vec2(x, y)).rgb, sampler);
+			vec2 tex_coord = In.texCoord + vec2(x, y) * texel;
+			sampler = max(texture(tex0, tex_coord).rgb, sampler);
 		}
 	}
 	return sampler;
