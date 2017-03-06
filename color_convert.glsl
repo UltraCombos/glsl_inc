@@ -1,3 +1,6 @@
+//	rgb<-->hsv functions by Sam Hocevar
+//	http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
+
 vec3 rgb2hsv(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -34,4 +37,43 @@ vec3 yuv2rgb(vec3 c)
 	float G = c.x - 0.39465 * (c.y - 0.5) - 0.5806 * (c.z - 0.5);
 	float B = c.x + 2.03211 * (c.y - 0.5);
 	return vec3(R, G, B);
+}
+
+vec3 hue( vec3 s, vec3 d )
+{
+	d = rgb2hsv(d);
+	d.x = rgb2hsv(s).x;
+	return hsv2rgb(d);
+}
+
+vec3 color( vec3 s, vec3 d )
+{
+	s = rgb2hsv(s);
+	s.z = rgb2hsv(d).z;
+	return hsv2rgb(s);
+}
+
+vec3 saturation( vec3 s, vec3 d )
+{
+	d = rgb2hsv(d);
+	d.y = rgb2hsv(s).y;
+	return hsv2rgb(d);
+}
+
+vec3 luminosity( vec3 s, vec3 d )
+{
+	float dLum = dot(d, vec3(0.3, 0.59, 0.11));
+	float sLum = dot(s, vec3(0.3, 0.59, 0.11));
+	float lum = sLum - dLum;
+	vec3 c = d + lum;
+	float minC = min(min(c.x, c.y), c.z);
+	float maxC = max(max(c.x, c.y), c.z);
+	if(minC < 0.0) return sLum + ((c - sLum) * sLum) / (sLum - minC);
+	else if(maxC > 1.0) return sLum + ((c - sLum) * (1.0 - sLum)) / (maxC - sLum);
+	else return c;
+}
+
+float luminance( vec3 c )
+{
+	return dot(color.rgb, vec3(0.299, 0.587, 0.114)); // vec3(0.2126, 0.7152, 0.0722)
 }
